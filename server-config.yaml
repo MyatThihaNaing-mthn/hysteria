@@ -1,0 +1,147 @@
+# Hysteria 2 VPN Server Configuration
+# For 20-30 Users
+# 
+# This configuration file provides a production-ready setup for a Hysteria 2 
+# VPN server that can handle 20-30 concurrent users efficiently.
+
+# Server listening address
+# Change this to your server's IP address or use :443 to listen on all interfaces
+listen: :443
+
+# TLS Configuration
+# You MUST configure valid TLS certificates for the server to work
+tls:
+  # Option 1: Use existing certificates
+  cert: /etc/hysteria/server.crt
+  key: /etc/hysteria/server.key
+  
+  # Option 2: Use ACME (Let's Encrypt) for automatic certificates (recommended)
+  # Uncomment the section below and comment out cert/key above
+  # acme:
+  #   domains:
+  #     - your-domain.com
+  #   email: your-email@example.com
+
+# QUIC Configuration - Optimized for 20-30 users
+quic:
+  # Stream receive windows - controls per-stream buffer size
+  initStreamReceiveWindow: 8388608    # 8MB - good for high-speed connections
+  maxStreamReceiveWindow: 8388608     # 8MB
+  
+  # Connection receive windows - controls per-connection buffer size
+  initConnReceiveWindow: 20971520     # 20MB - allows multiple streams per user
+  maxConnReceiveWindow: 20971520      # 20MB
+  
+  # Connection timeout
+  maxIdleTimeout: 60s                 # Disconnect idle connections after 60s
+  
+  # Maximum concurrent streams per connection
+  # With 30 users, each might have multiple streams (typically 10-50)
+  maxIncomingStreams: 512             # Total across all connections
+  
+  # Path MTU Discovery - helps optimize packet sizes
+  disablePathMTUDiscovery: false
+
+# Bandwidth Configuration
+# Set server-side bandwidth limits to ensure fair usage among all users
+bandwidth:
+  # Total server upload bandwidth (to clients)
+  # For 20-30 users, allocate based on your server's capacity
+  # Example: 1 Gbps server = 1000 mbps / 30 users ≈ 33 mbps per user
+  up: 1 gbps      # Adjust based on your server capacity
+  
+  # Total server download bandwidth (from clients)
+  down: 1 gbps    # Adjust based on your server capacity
+
+# Client bandwidth settings
+# false = respect client bandwidth hints (recommended for fair distribution)
+# true = ignore client settings and enforce server-side limits only
+ignoreClientBandwidth: false
+
+# Enable speed test endpoint for clients to test connection
+speedTest: true
+
+# UDP relay settings
+disableUDP: false           # Enable UDP for gaming, video calls, etc.
+udpIdleTimeout: 120s       # UDP session timeout
+
+# Authentication - Username/Password for multiple users
+# This is the recommended method for 20-30 users
+auth:
+  type: userpass
+  userpass:
+    # Format: username: password
+    # Add your users below (usernames are case-insensitive)
+    user1: "ChangeMe_StrongPassword1!"
+    user2: "ChangeMe_StrongPassword2!"
+    user3: "ChangeMe_StrongPassword3!"
+    user4: "ChangeMe_StrongPassword4!"
+    user5: "ChangeMe_StrongPassword5!"
+    user6: "ChangeMe_StrongPassword6!"
+    user7: "ChangeMe_StrongPassword7!"
+    user8: "ChangeMe_StrongPassword8!"
+    user9: "ChangeMe_StrongPassword9!"
+    user10: "ChangeMe_StrongPassword10!"
+    user11: "ChangeMe_StrongPassword11!"
+    user12: "ChangeMe_StrongPassword12!"
+    user13: "ChangeMe_StrongPassword13!"
+    user14: "ChangeMe_StrongPassword14!"
+    user15: "ChangeMe_StrongPassword15!"
+    user16: "ChangeMe_StrongPassword16!"
+    user17: "ChangeMe_StrongPassword17!"
+    user18: "ChangeMe_StrongPassword18!"
+    user19: "ChangeMe_StrongPassword19!"
+    user20: "ChangeMe_StrongPassword20!"
+    user21: "ChangeMe_StrongPassword21!"
+    user22: "ChangeMe_StrongPassword22!"
+    user23: "ChangeMe_StrongPassword23!"
+    user24: "ChangeMe_StrongPassword24!"
+    user25: "ChangeMe_StrongPassword25!"
+    user26: "ChangeMe_StrongPassword26!"
+    user27: "ChangeMe_StrongPassword27!"
+    user28: "ChangeMe_StrongPassword28!"
+    user29: "ChangeMe_StrongPassword29!"
+    user30: "ChangeMe_StrongPassword30!"
+    # Add more users as needed...
+
+# Optional: Obfuscation to avoid detection
+# Salamander obfuscation helps bypass deep packet inspection
+obfs:
+  type: salamander
+  salamander:
+    password: "ChangeMe_ObfuscationKey123!"
+
+# DNS Resolver Configuration
+resolver:
+  type: udp
+  udp:
+    addr: 8.8.8.8:53
+    timeout: 4s
+
+# Traffic Statistics API
+# Allows monitoring of per-user bandwidth usage
+trafficStats:
+  listen: 127.0.0.1:8080  # Only accessible from localhost for security
+  secret: "ChangeMe_TrafficStatsSecret!"  # Change this secret
+
+# Masquerade as a regular website when accessed via HTTP/HTTPS
+# This helps avoid detection by making the server look like a normal website
+masquerade:
+  type: proxy
+  proxy:
+    url: https://www.example.com  # Change to any website you want to mimic
+    rewriteHost: true
+
+# ACL (Access Control List) - Optional
+# Use this to control what websites/services users can access
+# acl:
+#   inline:
+#     # Block certain domains or IPs
+#     - reject(geoip:private)
+#     # Allow everything else
+#     - direct(all)
+
+# Outbound Configuration - How server connects to target sites
+outbounds:
+  - name: default
+    type: direct

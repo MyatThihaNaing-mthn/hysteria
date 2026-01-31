@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  hysteria-server:
+    image: ghcr.io/apernet/hysteria:latest
+    container_name: hysteria-server
+    restart: unless-stopped
+    
+    # Use host network mode for better performance
+    # This allows the server to bind directly to the host's network interfaces
+    network_mode: host
+    
+    # Alternative: Use port mapping if host network is not available
+    # Uncomment the lines below and comment out network_mode: host
+    # ports:
+    #   - "443:443/udp"  # Main Hysteria port
+    #   # If you're running masquerade on different ports:
+    #   # - "80:80/tcp"   # HTTP masquerade
+    #   # - "8443:8443/tcp"  # HTTPS masquerade
+    
+    volumes:
+      # Mount the configuration file
+      - ./server-config.yaml:/etc/hysteria/config.yaml:ro
+      
+      # Mount TLS certificates directory
+      # Adjust these paths based on your certificate location
+      - ./certs:/etc/hysteria/certs:ro
+      
+      # For Let's Encrypt certificates
+      # - /etc/letsencrypt:/etc/letsencrypt:ro
+      
+      # ACME certificate storage (if using automatic certificates)
+      - hysteria-acme:/var/lib/hysteria
+    
+    environment:
+      # Optional environment variables
+      - TZ=UTC  # Set your timezone
+    
+    # Resource limits for 20-30 users
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'      # Limit to 2 CPU cores
+          memory: 4G       # Maximum 4GB RAM
+        reservations:
+          cpus: '1.0'      # Reserve at least 1 CPU core
+          memory: 2G       # Reserve at least 2GB RAM
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "pgrep", "hysteria"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    
+    # Run as non-root user (recommended)
+    # user: "1000:1000"  # Uncomment and adjust UID:GID as needed
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Optional: Monitoring with Prometheus exporter
+  # Uncomment if you want to monitor traffic statistics
+  # hysteria-exporter:
+  #   image: prom/blackbox-exporter:latest
+  #   container_name: hysteria-exporter
+  #   restart: unless-stopped
+  #   ports:
+  #     - "9115:9115"
+  #   volumes:
+  #     - ./monitoring/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+
+volumes:
+  # Volume for ACME certificates
+  hysteria-acme:
+    driver: local
+
+# Optional: Custom network configuration
+# networks:
+#   hysteria-net:
+#     driver: bridge
+#     ipam:
+#       config:
+#         - subnet: 172.20.0.0/16
