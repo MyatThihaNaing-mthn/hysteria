@@ -53,7 +53,9 @@ bandwidth:
   # Total server download bandwidth (from clients)
   down: 1 gbps    # Adjust based on your server capacity
 
-# Ignore client bandwidth settings - server enforces limits
+# Client bandwidth settings
+# false = respect client bandwidth hints (recommended for fair distribution)
+# true = ignore client settings and enforce server-side limits only
 ignoreClientBandwidth: false
 
 # Enable speed test endpoint for clients to test connection

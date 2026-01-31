@@ -14,7 +14,7 @@ import subprocess
 import sys
 import time
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 try:
     import requests
@@ -56,7 +56,7 @@ def format_bandwidth(bytes_per_sec: float) -> str:
         bits_per_sec /= 1000.0
     return f"{bits_per_sec:.2f} Tbps"
 
-def check_service_status() -> Dict[str, any]:
+def check_service_status() -> Dict[str, Any]:
     """Check if Hysteria service is running"""
     status = {
         'running': False,
