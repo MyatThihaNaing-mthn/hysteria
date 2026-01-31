@@ -322,6 +322,9 @@ def main():
     """Main function"""
     import argparse
     
+    # Declare globals at the beginning
+    global TRAFFIC_STATS_URL, TRAFFIC_STATS_SECRET
+    
     parser = argparse.ArgumentParser(
         description='Monitor Hysteria 2 VPN Server',
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -366,7 +369,6 @@ Configuration:
     args = parser.parse_args()
     
     # Override configuration if provided
-    global TRAFFIC_STATS_URL, TRAFFIC_STATS_SECRET
     if args.secret:
         TRAFFIC_STATS_SECRET = args.secret
     if args.url:
